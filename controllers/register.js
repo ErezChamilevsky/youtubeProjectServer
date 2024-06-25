@@ -1,13 +1,14 @@
 const registerService = require('../services/register');
 
 const createUser = async (req, res) => {
-    newUser = await registerService.craeteUser(req.body.userName, req.body.userPassword, req.body.userConfirmPassword, req.body.displayName, req.body.userImgFile)
-    if (newUser){
-        res.status(200).json({ message : "User create succesfully"});
+    result = await registerService.craeteUser(req.body.userName, req.body.userPassword, req.body.userConfirmPassword, req.body.displayName, req.body.userImgFile)
+    
+    if (result.success) {
+        res.status(200).json({ message: result.message, user: result.user });
     } else {
-        res.status(409).json({ message : "userName already Exist"});
+        res.status(409).json({ message: result.message });
     }
    
 }
 
-model.export = {createUser};
+module.exports = {createUser};

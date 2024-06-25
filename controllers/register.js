@@ -1,7 +1,7 @@
 const registerService = require('../services/register');
 
 const createUser = async (req, res) => {
-    newUser = await registerService.craeteUser(req.body.userName, req.body.userPassword, req.body.displayName, req.body.userImgFile)
+    newUser = await registerService.craeteUser(req.body.userName, req.body.userPassword, req.body.userConfirmPassword, req.body.displayName, req.body.userImgFile)
     if (newUser){
         res.status(200).json({ message : "User create succesfully"});
     } else {

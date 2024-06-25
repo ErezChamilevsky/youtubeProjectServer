@@ -5,7 +5,7 @@ const createComment = async (req, res) => {
         req.body.userImg,
         req.body.userName,
         req.body.content,
-        req.body.commentId,
+        req.body.commentId
 
     ));
 }

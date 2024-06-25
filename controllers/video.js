@@ -13,7 +13,7 @@ const createVideo = async (req, res) => {
         req.body.views,
         req.body.description,
         req.body.likes,
-        req.body.userId,
+        req.body.userId
 
     ));
 }

@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-
 const Video = new Schema({
     id: {
         type: Number,
+        required: true,
         unique: true,
         immutable: true, // Makes the field read-only
     },

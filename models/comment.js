@@ -27,7 +27,8 @@ const Comment = new Schema({
     commentId: {
         type: Number,
         uniuqe: true,
-        required: true
+        required: true,
+        immutable: true
     },
 })
 

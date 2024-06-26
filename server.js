@@ -27,13 +27,12 @@ mongoose.connect(process.env.CONNECTION_STRING,
 
 server.use(express.static('public'));
 
-// //routes list
-// const register = require('./routes/register');
-// server.use('/api/users', register);
-
-
 const users = require('./routes/user')
 server.use('/api/users/', users)
+
+const tokens = require('./routes/tokens')
+server.use('/api/tokens/', tokens)
+
 
 
 server.listen(process.env.PORT); //server listen in PORT (define in config/.env.local or test).

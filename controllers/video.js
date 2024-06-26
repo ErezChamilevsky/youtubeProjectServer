@@ -1,8 +1,6 @@
 const videoService = require('../services/video');
 
 
-id, img, videoSrc, title, displayName, publicationDate, views, description, likes, userId
-
 const createVideo = async (req, res) => {
     res.json(await videoService.createVideo(req.body.id,
         req.body.img,

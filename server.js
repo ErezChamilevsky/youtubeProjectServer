@@ -27,9 +27,12 @@ mongoose.connect(process.env.CONNECTION_STRING,
 
 server.use(express.static('public'));
 
+//this routes if for crud operation in user
 const users = require('./routes/user')
 server.use('/api/users/', users)
 
+
+//this routes is for login
 const tokens = require('./routes/tokens')
 server.use('/api/tokens/', tokens)
 

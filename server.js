@@ -3,7 +3,8 @@ var server = express();
 
 
 const bodyParser = require('body-parser');
-server.use(bodyParser.urlencoded({ extended: true}));
+server.use(bodyParser.json({ limit: '50mb' })); // Increase the limit for JSON and URL-encoded bodies
+server.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 server.use(express.json());
 
 const cors = require('cors');

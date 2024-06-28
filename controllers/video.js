@@ -2,25 +2,22 @@ const videoService = require('../services/video');
 const userServiece = require('../services/user');
 
 
-//TODO change this to only get the body of the request, parser it and send it to the seviece
 const createVideo = async (req, res) => {
     try {
-        console.log("before anything");
-
-        const userId = Number(req.params.id);
-        console.log(userId);
+        const userId = req.params.id;
         if (isNaN(userId)) {
             return res.status(400).json({ errors: ['Invalid user ID'] });
         }
-        console.log("before getting user details");
         const user = await userServiece.getUserById(userId);
         if (!user || !user.displayName) {
             return res.status(400).json({ errors: ['User not found or display name missing'] });
         }
-        console.log(user);
         const displayName = user.displayName;
-        console.log("before creating");
-        
+        const createdVideo = await videoService.createVideo(
+            req.body.img, req.body.videoSrc, req.body.title, displayName,
+            req.body.publicationDate, req.body.views, req.body.description, req.body.likes, userId
+        );
+
         res.json(createdVideo);
     } catch (error) {
         console.error('Error creating video:', error);
@@ -32,7 +29,7 @@ const createVideo = async (req, res) => {
 // Get video details by video ID
 const getVideoByVideoId = async (req, res) => {
     try {
-        const video = await videoService.getVideoById(Number(req.params.pid));
+        const video = await videoService.getVideoByIdAndUserId(req.params.pid, req.params.id);
 
         if (!video) {
             return res.status(404).json({ errors: ['Video not found'] });
@@ -80,7 +77,7 @@ const getVideoListByUserId = async (req, res) => {
 // Get video details by video ID and user ID
 const getVideoOfUserByVideoId = async (req, res) => {
     try {
-        const video = await videoService.getVideoByIdAndUserId(Number(req.params.pid), Number(req.params.id));
+        const video = await videoService.getVideoByIdAndUserId(req.params.pid, req.params.id);
 
         if (!video) {
             return res.status(404).json({ errors: ['Video not found'] });
@@ -96,13 +93,7 @@ const getVideoOfUserByVideoId = async (req, res) => {
 // Delete video by video ID and user ID
 const deleteVideoByVideoId = async (req, res) => {
     try {
-        const video = await videoService.getVideoByIdAndUserId(Number(req.params.pid), Number(req.params.id));
-
-        if (!video) {
-            return res.status(404).json({ errors: ['Video not found'] });
-        }
-
-        const deletedVideo = await videoService.deleteVideoObject(video);
+        const deletedVideo = await videoService.deleteVideoObject(req.params.pid, req.params.id);
 
         if (!deletedVideo) {
             return res.status(404).json({ errors: ['Failed to delete video'] });

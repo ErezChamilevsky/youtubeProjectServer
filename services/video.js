@@ -2,7 +2,7 @@ const Video = require('../models/video');
 
 const createVideo = async (img, videoSrc, title, displayName, publicationDate, views, description, likes, userId) => {
     const video = new Video(
-        {img: img, videoSrc: videoSrc, title: title, displayName: displayName, description: description, userId: userId });
+        { img: img, videoSrc: videoSrc, title: title, displayName: displayName, description: description, userId: userId });
 
     //if it is not the defaults
     if (publicationDate) video.publicationDate = publicationDate;
@@ -11,15 +11,6 @@ const createVideo = async (img, videoSrc, title, displayName, publicationDate, v
 
     return await video.save();
 };
-
-
-const getVideoById = async (id) => {
-    const video = await Video.findOne({ id: id });
-    if (video)
-        return video;
-    else
-        return null;
-}
 
 
 // Function to get the 10 most viewed videos
@@ -77,15 +68,20 @@ async function getVideoListByUserId(userId) {
         return null;
 }
 
-async function deleteVideoObject(video) {
+async function getVideoByIdAndUserId(videoId, userId) {
     try {
-        const deletedVideo = await Video.findOneAndDelete({ _id: video._id });
+        const video = await Video.findOne({ id: videoId, userId: userId });
+        return video;
+    } catch {
+        throw error;
+    }
+}
 
-        if (deletedVideo) {
-            return deletedVideo;
-        } else {
-            return null;
-        }
+async function deleteVideoObject(videoId, userId) {
+    try {
+        const deletedVideo = await Video.findOneAndDelete({ id: videoId, userId: userId });
+        return deletedVideo;
+
     } catch (error) {
         console.error('Error deleting video object:', error);
         throw error;
@@ -95,18 +91,36 @@ async function deleteVideoObject(video) {
 
 // Service function to partially update video by ID
 const updateVideoById = async (videoId, updateData) => {
-    return await Video.findOneAndUpdate({ id: videoId }, updateData, { new: true });
+    const video = await getVideoById(videoId);
+
+    if (!video) {
+        throw new Error('Video not found');
+    }
+
+    // Create a new object with the existing video data
+    const updatedData = { ...video._doc };
+
+    // Update only the fields that are present in updateData
+    for (const key in updateData) {
+        updateData[key];
+        if (updateData.hasOwnProperty(key) && updateData[key] != '') {
+            updatedData[key] = updateData[key];
+        }
+    }
+
+    return await Video.findOneAndUpdate({ id: videoId }, updatedData, { new: true });
 };
+
 
 
 
 module.exports = {
     createVideo,
-    getVideoById,
     getVideoListToPresent,
     getTenRandomVideos,
     getTenMostViewedVideos,
     getVideoListByUserId,
     deleteVideoObject,
-    updateVideoById
+    updateVideoById,
+    getVideoByIdAndUserId
 };

@@ -25,6 +25,12 @@ const pipeline = [
 }
 
 
+//function who check if user dont fill any of fields
+const checkIfAnyFieldEmpty = (userName, userPassword, userConfirmPassword, displayName, userImgFile) => {
+    if(userName === "" || userPassword === "" || userConfirmPassword === "" || displayName === "" || userImgFile === null)
+        return true
+}
+
 //function who check if the userName already exist in the database
 const checkIfUserNameExist = async(userName) =>{
     const existingUser = await User.findOne({ userName });
@@ -47,6 +53,13 @@ const checkIfConfirmPassSameToPass = (userPassword, userConfirmPassword) => {
 
 //the function who create new user in the database
 const createUser = async (userName, userPassword, userConfirmPassword, displayName, userImgFile) => {
+
+    //check if user dont fill any of fields
+    AnyFieldEmpty = checkIfAnyFieldEmpty(userName, userPassword, userConfirmPassword, displayName, userImgFile)
+    if(AnyFieldEmpty){
+        return { success: false, message: 'Some field are empty, Please fill all the fields'};
+    }
+
     // Check if the userName already exists
     const userNameExist = await checkIfUserNameExist(userName);
     if(userNameExist)
@@ -66,7 +79,7 @@ const createUser = async (userName, userPassword, userConfirmPassword, displayNa
     userIdCounter++; //increment the Id counter
     const newUser = new User({userId : userIdCounter, userName : userName , userPassword : userPassword, displayName : displayName, userImgFile : userImgFile});
     await newUser.save(); //save the new user in mongoDB ,and return the new User object and not the promise because 'await'
-    return { success: true, message: 'Registration completed successfully', user: newUser }; // Return the new user object
+    return { success: true, message: 'Registration completed successfully'}; // Return the new user object
     
 }
 

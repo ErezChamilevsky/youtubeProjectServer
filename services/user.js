@@ -66,7 +66,7 @@ const createUser = async (userName, userPassword, userConfirmPassword, displayNa
     userIdCounter++; //increment the Id counter
     const newUser = new User({userId : userIdCounter, userName : userName , userPassword : userPassword, displayName : displayName, userImgFile : userImgFile});
     await newUser.save(); //save the new user in mongoDB ,and return the new User object and not the promise because 'await'
-    return { success: true, message: 'User created successfully', user: newUser }; // Return the new user object
+    return { success: true, message: 'Registration completed successfully', user: newUser }; // Return the new user object
     
 }
 

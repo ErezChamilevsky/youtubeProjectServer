@@ -6,7 +6,7 @@ const creatToken = async (req, res) => {
     if (token) {
         res.status(200).json({ token: token}); //return token to brwoser
     } else {
-        res.status(404).send('Invalid username and/or password')
+        res.status(404).json( {message: 'Invalid username and/or password'})
     }
    
 }

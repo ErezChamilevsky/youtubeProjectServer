@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-const comment = new Schema({
+const Comment = new Schema({
     videoId: {
         type: Number, // 
         required: true,
@@ -27,13 +27,13 @@ const comment = new Schema({
 });
 
 // Static method to find the highest ID and increment it
-comment.statics.getNextId = async function () {
-    const comment = await this.findOne().sort('-commentId').exec();
-    return comment ? comment.commentId + 1 : 1;
+Comment.statics.getNextId = async function () {
+    const Comment = await this.findOne().sort('-commentId').exec();
+    return Comment ? Comment.commentId + 1 : 1;
 };
 
 // Pre-save hook to set the ID
-comment.pre('save', async function (next) {
+Comment.pre('save', async function (next) {
     if (this.isNew) {
         const nextId = await this.constructor.getNextId();
         this.commentId = nextId;
@@ -41,4 +41,4 @@ comment.pre('save', async function (next) {
     next();
 });
 
-module.exports = mongoose.model('Comment', comment);
+module.exports = mongoose.model('Comment', Comment);

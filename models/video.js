@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const video = new Schema({
+const Video = new Schema({
     id: {
         type: Number,
         unique: true,
@@ -47,13 +47,13 @@ const video = new Schema({
 });
 
 // Static method to find the highest ID and increment it
-video.statics.getNextId = async function () {
-    const video = await this.findOne().sort('-id').exec();
-    return video ? video.id + 1 : 1;
+Video.statics.getNextId = async function () {
+    const Video = await this.findOne().sort('-id').exec();
+    return Video ? Video.id + 1 : 1;
 };
 
 // Pre-save hook to set the ID
-video.pre('save', async function (next) {
+Video.pre('save', async function (next) {
     if (this.isNew) {
         const nextId = await this.constructor.getNextId();
         this.id = nextId;
@@ -61,4 +61,4 @@ video.pre('save', async function (next) {
     next();
 });
 
-module.exports = mongoose.model('Video', video);
+module.exports = mongoose.model('Video', Video);

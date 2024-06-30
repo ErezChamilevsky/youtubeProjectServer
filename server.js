@@ -29,13 +29,13 @@ mongoose.connect(process.env.CONNECTION_STRING,
 server.use(express.static('public'));
 
 
-
+//this routes is for users crud operations
 const users = require('./routes/user');
 server.use('/api/users/', users);
 
+//this routes is for videos crud operations
 const videos = require('./routes/video');
 server.use('/api/videos', videos);
-
 
 
 //this routes is for login

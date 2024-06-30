@@ -5,15 +5,11 @@ const Schema = mongoose.Schema;
 const comment = new Schema({
     videoId: {
         type: Number, // 
+        required: true,
         immutable: true // Makes the field read-only
     },
 
-    userImg: {
-        type: String,
-        required: true
-    },
-
-    userName: {
+    userId: {
         type: String,
         required: true
     },
@@ -26,22 +22,21 @@ const comment = new Schema({
     commentId: {
         type: Number, 
         unique: true, // Corrected spelling
-        required: true,
         immutable: true
     },
 });
 
-// Static method to find the highest commentId and increment it
+// Static method to find the highest ID and increment it
 comment.statics.getNextId = async function () {
     const comment = await this.findOne().sort('-commentId').exec();
     return comment ? comment.commentId + 1 : 1;
 };
 
-// Pre-save hook to set the commentId
+// Pre-save hook to set the ID
 comment.pre('save', async function (next) {
     if (this.isNew) {
         const nextId = await this.constructor.getNextId();
-        this.commentId = nextId; // Corrected field to set commentId
+        this.commentId = nextId;
     }
     next();
 });

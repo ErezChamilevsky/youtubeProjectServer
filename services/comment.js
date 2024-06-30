@@ -1,7 +1,8 @@
 const Comment = require('../models/comment');
 
-const createComment = async (videoId, userImg, userName, content, commentId) => {
-    const comment = new Comment({ videoId, userImg, userName, content, commentId });
+const createComment = async (videoId, userId, content) => {
+    console.log("gotHERE");
+    const comment = new Comment({ videoId, userId, content});
     return await comment.save();
 };
 

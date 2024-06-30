@@ -90,9 +90,8 @@ async function deleteVideoObject(videoId, userId) {
 
 
 // Service function to partially update video by ID
-const updateVideoById = async (videoId, updateData) => {
-    const video = await getVideoById(videoId);
-
+const updateVideoById = async (videoId, userId, updateData) => {
+    const video = await getVideoByIdAndUserId(videoId, userId);
     if (!video) {
         throw new Error('Video not found');
     }
@@ -110,8 +109,6 @@ const updateVideoById = async (videoId, updateData) => {
 
     return await Video.findOneAndUpdate({ id: videoId }, updatedData, { new: true });
 };
-
-
 
 
 module.exports = {

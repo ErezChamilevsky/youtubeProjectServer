@@ -110,7 +110,7 @@ const deleteVideoByVideoId = async (req, res) => {
 // PATCH request to update specific fields of a video by ID
 const updateVideoById = async (req, res) => {
     try {
-        const updatedVideo = await videoService.updateVideoById(Number(req.params.pid), req.body);
+        const updatedVideo = await videoService.updateVideoById(req.params.pid, req.params.id, req.body);
         if (!updatedVideo) {
             return res.status(404).json({ errors: ['Video not found'] });
         }

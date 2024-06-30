@@ -2,12 +2,11 @@ const commentService = require('../services/comment');
 
 const createComment = async (req, res) => {
     try {
+        console.log("gotHERECREATE");
         const comment = await commentService.createComment(
-            req.params.pid, // videoId from URL
-            req.body.userImg,
-            req.body.userName,
+            req.params.pid,
+            req.body.userIdC,
             req.body.content,
-            req.body.commentId
         );
         res.json(comment);
     } catch (error) {

@@ -38,9 +38,37 @@
     <button onclick="deleteVideo()">delete Video</button>
     <button onclick="getUserVideos()">get user videos</button>
         <button onclick="getVideo()">get video by videoId</button>
+    <br>
+    <br>
+    <!-- <input name="userIdC" placeholder="user ID">     -->
+    <!-- <input name="videoIdC" placeholder="video ID"> -->
+    <input name="contnet" placeholder="content">
+    <input name="commentId" placeholder="commentId">
+    <button onclick="createComment1()">Create Comemnt</button>
+    <!-- <button onclick="updateVideo()">update Video</button>
+    <button onclick="deleteVideo()">delete Video</button>
+    <button onclick="getUserVideos()">get user videos</button>
+    <button onclick="getVideo()">get video by videoId</button> -->
 
 
     <script>
+
+
+        async function createComment1() {
+            const comment = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('userId')[0].value
+                + '/videos/'+ document.getElementsByName('videoId')[0].value + '/comments', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    userId: document.getElementsByName('userId')[0].value,
+                    videoId: document.getElementsByName('videoId')[0].value,
+                    content: document.getElementsByName('content')[0].value,
+                })
+            }).then(data => data.json())    
+            console.log(comment)
+        }
 
         async function createVideo() {
             const video = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('userId')[0].value

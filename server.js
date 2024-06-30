@@ -32,8 +32,11 @@ server.use(express.static('public'));
 // server.use('/api/users', register);
 
 
-const users = require('./routes/user')
-server.use('/api/users/', users)
+const users = require('./routes/user');
+server.use('/api/users/', users);
+
+const videos = require('./routes/video');
+server.use('/api/videos', videos);
 
 
 server.listen(process.env.PORT); //server listen in PORT (define in config/.env.local or test).

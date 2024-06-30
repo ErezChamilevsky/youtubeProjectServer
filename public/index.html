@@ -1,40 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
-    <form id="videoId">
-        <input type="text" placeholder="videoId">
-    </form>
-    <form id="userImg">
-        <input type="text" placeholder="userImg">
-    </form>
-    <form id="userName">
-        <input type="text" placeholder="userName">
-    </form>
-    <form id="content">
-        <input type="text" placeholder="content">
-    </form>
-    <form id="commentId">
-        <input type="text" placeholder="commentId">
-    </form>
-    <button onclick="create()">Add</button>
+
+    <input name="username">
+    <input name="password" type="password">
+    <input name="confirmPassword">
+    <input name="displayName">
+    <input name="userImgFile">
+    <button onclick="login()">Login</button>
+    <button onclick="create()">create</button>
+
+    <input><button onclick="update()">update</button>
+    <button onclick="del()">delete</button> {/* delete function */}
+    <button onclick="getUserDeatails()">getUserDeatails</button> {/* get user details function */}
+
+    <br>
+    <br>
+
+    <input name="userId" placeholder="User ID">
+    <input name="img" placeholder="img">
+    <input name="videoSrc" placeholder="videoSrc">
+    <input name="title" placeholder="title">
+    <input name="publicationDate" placeholder="date">
+    <input name="views" placeholder="views">
+    <input name="description" placeholder="description">
+    <input name="likes" placeholder="likes">
+    <button onclick="createVideo()">Create Video</button>
+    <input name="videoId" placeholder="videoId">
+    <button onclick="updateVideo()">update Video</button>
+    <button onclick="deleteVideo()">delete Video</button>
+    <button onclick="getUserVideos()">get user videos</button>
+        <button onclick="getVideo()">get video by videoId</button>
+    <br>
+    <br>
+    <!-- <input name="userIdC" placeholder="user ID">     -->
+    <!-- <input name="videoIdC" placeholder="video ID"> -->
+    <input name="contnet" placeholder="content">
+    <input name="commentId" placeholder="commentId">
+    <button onclick="createComment1()">Create Comemnt</button>
+    <!-- <button onclick="updateVideo()">update Video</button>
+    <button onclick="deleteVideo()">delete Video</button>
+    <button onclick="getUserVideos()">get user videos</button>
+    <button onclick="getVideo()">get video by videoId</button> -->
+
 
     <script>
-        async function create() {
-            const data = await fetch('http://localhost:12345/comments', {
+
+
+        async function createComment1() {
+            const comment = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('userId')[0].value
+                + '/videos/'+ document.getElementsByName('videoId')[0].value + '/comments', {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({videoId: document.getElementsByTagName(videoId)[0].value})
-            .then(data => data.json())
-            })
-            console.log(videos)
+                body: JSON.stringify({
+                    userId: document.getElementsByName('userId')[0].value,
+                    videoId: document.getElementsByName('videoId')[0].value,
+                    content: document.getElementsByName('content')[0].value,
+                })
+            }).then(data => data.json())    
+            console.log(comment)
         }
+
+        async function createVideo() {
+            const video = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('userId')[0].value
+                + '/videos', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    userId: document.getElementsByName('userId')[0].value,
+                    img: document.getElementsByName('img')[0].value,
+                    videoSrc: document.getElementsByName('videoSrc')[0].value,
+                    title: document.getElementsByName('title')[0].value,
+                    publicationDate: document.getElementsByName('publicationDate')[0].value,
+                    views: document.getElementsByName('views')[0].value,
+                    description: document.getElementsByName('description')[0].value,
+                    likes: document.getElementsByName('likes')[0].value
+                })
+            }).then(data => data.json())
+            console.log(video)
+        }
+
+        async function updateVideo() {
+            const video = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('userId')[0].value
+                + '/videos/' + document.getElementsByName('videoId')[0].value, {
+
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    userId: document.getElementsByName('userId')[0].value,
+                    img: document.getElementsByName('img')[0].value,
+                    videoSrc: document.getElementsByName('videoSrc')[0].value,
+                    title: document.getElementsByName('title')[0].value,
+                    publicationDate: document.getElementsByName('publicationDate')[0].value,
+                    views: document.getElementsByName('views')[0].value,
+                    description: document.getElementsByName('description')[0].value,
+                    likes: document.getElementsByName('likes')[0].value
+                })
+            }).then(data => data.json())
+            console.log(video)
+        }
+
+
+        async function deleteVideo() {
+            console.log('here i am')
+            const video = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('userId')[0].value
+                + '/videos/' + document.getElementsByName('videoId')[0].value, {
+                method: "DELETE",
+            }).then(data => data.json())
+            console.log(video)
+        }
+        async function getUserVideos() {
+            const video = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('userId')[0].value + '/videos/', {
+                method: "GET",
+            }).then(data => data.json())
+            console.log(video)
+        }
+
+        async function getVideo() {
+                const video = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('userId')[0].value + '/videos/'
+                + document.getElementsByName('videoId')[0].value, {
+                    method: "GET",
+                }).then(data => data.json())
+                console.log(video)
+            }
+
+        async function login() {
+            const token = await fetch('http://localhost:12345/api/tokens', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    userName: document.getElementsByTagName('input')[0].value,
+                    userPassword: document.getElementsByTagName('input')[1].value
+                })
+            }).then(data => data.json())
+            console.log(user)
+        }
+
+
+        async function create() {
+            const user = await fetch('http://localhost:12345/api/users', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    userName: document.getElementsByTagName('input')[0].value,
+                    userPassword: document.getElementsByTagName('input')[1].value,
+                    userConfirmPassword: document.getElementsByTagName('input')[2].value,
+                    displayName: document.getElementsByTagName('input')[3].value,
+                    userImgFile: document.getElementsByTagName('input')[4].value,
+                })
+            }).then(data => data.json())
+            console.log(user)
+        }
+
+
+        async function update() {
+            const user = await fetch('http://localhost:12345/api/users/' + document.getElementsByTagName('input')[5].value, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    userName: document.getElementsByTagName('input')[0].value,
+                    userPassword: document.getElementsByTagName('input')[1].value,
+                    userConfirmPassword: document.getElementsByTagName('input')[2].value,
+                    displayName: document.getElementsByTagName('input')[3].value,
+                    userImgFile: document.getElementsByTagName('input')[4].value,
+                })
+            }).then(data => data.json())
+            console.log(user)
+        }
+
+        async function del() {
+            const user = await fetch('http://localhost:12345/api/users/' + document.getElementsByTagName('input')[5].value, {
+                method: "DELETE",
+            }).then(data => data.json())
+            console.log(user)
+        }
+
+
+        async function getUserDeatails() {
+            const user = await fetch('http://localhost:12345/api/users/' + document.getElementsByTagName('input')[5].value, {
+                method: "GET",
+            }).then(data => data.json())
+            console.log(user)
+        }
+
+
+
+
+
+
     </script>
+
 </body>
+
 </html>

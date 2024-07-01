@@ -10,7 +10,7 @@ const Comment = new Schema({
     },
 
     userId: {
-        type: String,
+        type: Number,
         required: true
     },
 

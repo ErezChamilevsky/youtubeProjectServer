@@ -1,11 +1,11 @@
 const commentService = require('../services/comment');
 
 const createComment = async (req, res) => {
+
     try {
-        console.log("gotHERECREATE");
         const comment = await commentService.createComment(
             req.params.pid,
-            req.body.userIdC,
+            req.body.userId,
             req.body.content,
         );
         res.json(comment);

@@ -37,36 +37,81 @@
     <button onclick="updateVideo()">update Video</button>
     <button onclick="deleteVideo()">delete Video</button>
     <button onclick="getUserVideos()">get user videos</button>
-        <button onclick="getVideo()">get video by videoId</button>
+    <button onclick="getVideo()">get video by videoId</button>
+    <button onclick="getVideoListToPresent()">get video list to present</button>
+
     <br>
     <br>
-    <!-- <input name="userIdC" placeholder="user ID">     -->
-    <!-- <input name="videoIdC" placeholder="video ID"> -->
-    <input name="contnet" placeholder="content">
+   
+    <!-- the userId in comment model will be the writer's -->
+    <input name="videoIdC" placeholder="videoId">
+    <input name="uploadedUserIdC" placeholder="userId uploaded vid">
+    <input name="writerId" placeholder="writer id">
+    <input name="content" placeholder="content">
     <input name="commentId" placeholder="commentId">
     <button onclick="createComment1()">Create Comemnt</button>
-    <!-- <button onclick="updateVideo()">update Video</button>
-    <button onclick="deleteVideo()">delete Video</button>
-    <button onclick="getUserVideos()">get user videos</button>
-    <button onclick="getVideo()">get video by videoId</button> -->
+    <button onclick="getComments()">get Comemnts</button>
+    <button onclick="updateComment()">update Comemnt</button>
+    <button onclick="getComment()">get Comemnt</button>
+    <button onclick="deleteComment()">delete Comemnt</button>
 
 
     <script>
 
+        async function updateComment() {
+             const comment = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('uploadedUserIdC')[0].value
+                + '/videos/' + document.getElementsByName('videoIdC')[0].value + '/comments/' + document.getElementsByName('commentId')[0].value, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    content: document.getElementsByName('content')[0].value,
+                })
+            }).then(data => data.json())
+            console.log(comment)
+        }
+
+        async function deleteComment() {
+                
+                const comment = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('uploadedUserIdC')[0].value
+                + '/videos/' + document.getElementsByName('videoIdC')[0].value + '/comments/' + document.getElementsByName('commentId')[0].value, {
+                    method: "DELETE",
+                }).then(data => data.json())
+                console.log(comment)
+            }
+
+            //specific comment
+        async function getComment() {
+            const comment = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('uploadedUserIdC')[0].value
+                + '/videos/' + document.getElementsByName('videoIdC')[0].value + '/comments/' + document.getElementsByName('commentId')[0].value, {
+                method: "GET",
+            }).then(data => data.json())
+            console.log(comment)
+        }
+
+        //all comments for video
+        async function getComments() {
+            const comments = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('uploadedUserIdC')[0].value
+                + '/videos/' + document.getElementsByName('videoIdC')[0].value + '/comments', {
+                method: "GET",
+            }).then(data => data.json())
+            console.log(comments)
+        }
 
         async function createComment1() {
-            const comment = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('userId')[0].value
-                + '/videos/'+ document.getElementsByName('videoId')[0].value + '/comments', {
+            const comment = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('uploadedUserIdC')[0].value
+                + '/videos/' + document.getElementsByName('videoIdC')[0].value + '/comments', {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    userId: document.getElementsByName('userId')[0].value,
-                    videoId: document.getElementsByName('videoId')[0].value,
+                    userId: document.getElementsByName('writerId')[0].value,
+                    videoId: document.getElementsByName('videoIdC')[0].value,
                     content: document.getElementsByName('content')[0].value,
                 })
-            }).then(data => data.json())    
+            }).then(data => data.json())
             console.log(comment)
         }
 
@@ -130,12 +175,21 @@
         }
 
         async function getVideo() {
-                const video = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('userId')[0].value + '/videos/'
+            const video = await fetch('http://localhost:12345/api/users/' + document.getElementsByName('userId')[0].value + '/videos/'
                 + document.getElementsByName('videoId')[0].value, {
-                    method: "GET",
-                }).then(data => data.json())
-                console.log(video)
-            }
+                method: "GET",
+            }).then(data => data.json())
+            console.log(video)
+        }
+
+        async function getVideoListToPresent() {
+            const videos = await fetch('http://localhost:12345/api/videos/', {
+                method: "GET",
+            }).then(data => data.json())
+            console.log(videos)
+        }
+
+
 
         async function login() {
             const token = await fetch('http://localhost:12345/api/tokens', {

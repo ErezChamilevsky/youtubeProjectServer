@@ -12,6 +12,16 @@ const createUser = async (req, res) => {
 }
 
 
+const getUserDetailsById = async (req, res) => {
+    console.log(req.params.id);
+    const user = await userService.getUserById(req.params.id);
+    console.log(user);
+    // check if user exist
+    if (!user) {
+        return res.status(404).json({ errors: ['User not found'] });
+    }
+    res.json(user);
+}
 
 const getUserDetails = async (req, res) => {
     console.log(req.params.id);
@@ -52,4 +62,4 @@ const deleteUser = async (req, res) => {
 
 
 
-module.exports = { createUser, updateUser, deleteUser, getUserDetails };
+module.exports = { createUser, updateUser, deleteUser, getUserDetails, getUserDetailsById };

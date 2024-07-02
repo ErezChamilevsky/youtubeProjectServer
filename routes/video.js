@@ -1,5 +1,6 @@
 const videoController = require('../controllers/video');
 const commentController = require('../controllers/comment'); 
+const userController = requeire('../controllers/user')
 
 //creating a router
 const express = require('express');
@@ -15,8 +16,8 @@ router.route('/:pid/')
     .get(videoController.getVideoByVideoId);
 
     //get uploader details
-router.route('/:pid/user')
-    .get(videoController.getUploaderByVideoId);
+router.route('/:pid/users/:id')
+    .get(userController.getUserDetailsById);
 
 
 

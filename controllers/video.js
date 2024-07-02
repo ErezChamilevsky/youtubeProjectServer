@@ -1,5 +1,5 @@
 const videoService = require('../services/video');
-const userServiece = require('../services/user');
+const userService = require('../services/user');
 
 
 const createVideo = async (req, res) => {
@@ -8,7 +8,7 @@ const createVideo = async (req, res) => {
         if (isNaN(userId)) {
             return res.status(404).json({ errors: ['Invalid user ID'] });
         }
-        const user = await userServiece.getUserById(userId);
+        const user = await userService.getUserById(userId);
         if (!user || !user.displayName) {
             return res.status(404).json({ errors: ['User not found or display name missing'] });
         }
@@ -28,7 +28,7 @@ const createVideo = async (req, res) => {
 // Get video details by video ID
 const getVideoByVideoId = async (req, res) => {
     try {
-        const video = await videoService.getVideoByIdAndUserId(req.params.pid, req.params.id);
+        const video = await videoService.getVideoByVideoId(req.params.pid);
 
         if (!video) {
             return res.status(404).json({ errors: ['Video not found'] });
@@ -45,6 +45,22 @@ const getVideoByVideoId = async (req, res) => {
 const getVideoListToPresent = async (_, res) => {
     try {
         const videosListToPresent = await videoService.getVideoListToPresent();
+
+        if (!videosListToPresent || videosListToPresent.length === 0) {
+            return res.status(404).json({ errors: ['No videos to present'] });
+        }
+
+        res.json(videosListToPresent);
+    } catch (error) {
+        console.error('Error fetching video list to present:', error);
+        return res.status(500).json({ errors: ['Failed to fetch video list'] });
+    }
+};
+
+// Get list of videos to present
+const getRandomVideosList = async (_, res) => {
+    try {
+        const videosListToPresent = await videoService.getTenRandomVideos(null);
 
         if (!videosListToPresent || videosListToPresent.length === 0) {
             return res.status(404).json({ errors: ['No videos to present'] });
@@ -89,6 +105,8 @@ const getVideoOfUserByVideoId = async (req, res) => {
     }
 };
 
+
+
 // Delete video by video ID and user ID
 const deleteVideoByVideoId = async (req, res) => {
     try {
@@ -120,6 +138,23 @@ const updateVideoById = async (req, res) => {
     }
 };
 
+const getUploaderByVideoId = async (req, res) => {
+    try {
+        const video = await videoService.getVideoByVideoId(req.params.pid);
+        if (!video) {
+            return res.status(404).json({ errors: ['Video not found'] });
+        }
+        const uploader = await userService.getUserById(video.userId); // Assuming video.userId is correct
+        if (!uploader) {
+            return res.status(404).json({ errors: ['Uploader not found'] });
+        }
+        res.json(uploader);
+    } catch (error) {
+        console.error('Error retrieving uploader by video ID:', error);
+        res.status(500).json({ errors: ['Failed to retrieve uploader'] });
+    }
+};
+
 module.exports = {
     createVideo,
     getVideoByVideoId,
@@ -127,5 +162,7 @@ module.exports = {
     getVideoListByUserId,
     getVideoOfUserByVideoId,
     deleteVideoByVideoId,
-    updateVideoById
+    updateVideoById,
+    getRandomVideosList,
+    getUploaderByVideoId
 };

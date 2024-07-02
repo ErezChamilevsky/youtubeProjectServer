@@ -44,16 +44,19 @@ async function getTenMostViewedVideos() {
         throw error;
     }
 }
-
-// Function to get 10 random videos from the remaining videos after excluding the 10 most viewed
+// Function to get 10 random videos, optionally excluding specified videos
 async function getTenRandomVideos(excludeVideos) {
     try {
-        // Get the count of videos excluding the most viewed ones
-        const count = await Video.countDocuments({ _id: { $nin: excludeVideos.map(video => video._id) } }).exec();
+        let query = {};
 
-        // Get 10 random videos from the remaining videos
+        if (excludeVideos && excludeVideos.length > 0) {
+            query = { _id: { $nin: excludeVideos.map(video => video._id) } };
+        }
+
+        const count = await Video.countDocuments(query).exec();
+
         const randomVideos = await Video.aggregate([
-            { $match: { _id: { $nin: excludeVideos.map(video => video._id) } } },
+            { $match: query },
             { $sample: { size: 10 } }
         ]).exec();
 
@@ -63,6 +66,7 @@ async function getTenRandomVideos(excludeVideos) {
         throw error;
     }
 }
+
 
 // Function to merge the two lists
 async function getVideoListToPresent() {
@@ -81,6 +85,21 @@ async function getVideoListToPresent() {
     }
 }
 
+async function getVideoListToPresent() {
+    try {
+        // Get the 10 most viewed videos
+        const mostViewedVideos = await getTenMostViewedVideos();
+
+        // Get 10 random videos from the remaining videos
+        const randomVideos = await getTenRandomVideos(mostViewedVideos);
+
+        // Merge the two lists
+        return [...mostViewedVideos, ...randomVideos];
+    } catch (error) {
+        throw error;
+    }
+}
+
 async function getVideoListByUserId(userId) {
     const videos = await Video.find({ userId: userId });
     if (videos)
@@ -94,6 +113,15 @@ async function getVideoByIdAndUserId(videoId, userId) {
         const video = await Video.findOne({ id: videoId, userId: userId });
         return video;
     } catch {
+        throw error;
+    }
+}
+
+async function getVideoByVideoId(videoId) {
+    try {
+        const video = await Video.findOne({ id: videoId});
+        return video;
+    } catch (error) {
         throw error;
     }
 }
@@ -140,5 +168,6 @@ module.exports = {
     getVideoListByUserId,
     deleteVideoObject,
     updateVideoById,
-    getVideoByIdAndUserId
+    getVideoByIdAndUserId,
+    getVideoByVideoId
 };

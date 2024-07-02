@@ -15,7 +15,7 @@ const createUser = async (req, res) => {
 
 const getUserDetails = async (req, res) => {
     console.log(req.params.id);
-    const user = await userService.getUserById(req.params.id);
+    const user = await userService.getUserByUserName(req.params.id);
     console.log(user);
     // check if user exist
     if (!user) {

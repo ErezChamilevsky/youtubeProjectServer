@@ -91,8 +91,17 @@ const createUser = async (userName, userPassword, userConfirmPassword, displayNa
 
 // craete here the logic of getDetails/update/delete
 
+
 const getUserById = async (userId) => {
     const user = await User.findOne({ userId: userId });
+    if (user)
+        return user;
+    else
+        return null;
+}
+
+const getUserByUserName = async (userName) => {
+    const user = await User.findOne({ userName: userName });
     if (user)
         return user;
     else
@@ -115,6 +124,6 @@ const deleteUserById = async (userId) => {
 
 
 
-module.exports = {getUserById, deleteUserById, updateUserById,createUser,checkIfUserNameExist, validatePassword, checkIfConfirmPassSameToPass, findUserIdMaxValue}
+module.exports = {getUserById, getUserByUserName, deleteUserById, updateUserById,createUser,checkIfUserNameExist, validatePassword, checkIfConfirmPassSameToPass, findUserIdMaxValue}
 
 

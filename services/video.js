@@ -1,15 +1,36 @@
 const Video = require('../models/video');
+const fs = require('fs');
+const path = require('path');
 
-const createVideo = async (img, videoSrc, title, displayName, publicationDate, views, description, likes, userId) => {
-    const video = new Video(
-        { img: img, videoSrc: videoSrc, title: title, displayName: displayName, description: description, userId: userId });
+const createVideo = async (img, videoSrc, title, displayName, description, userId) => {
+   // Define the directory where you want to save the video files
+   const videoDir = path.join(__dirname,'..', 'videos');
 
-    //if it is not the defaults
-    if (publicationDate) video.publicationDate = publicationDate;
-    if (views) video.views = views;
-    if (likes) video.likes = likes;
+   // Ensure the directory exists
+   if (!fs.existsSync(videoDir)) {
+       fs.mkdirSync(videoDir);
+   }
 
-    return await video.save();
+   const videoFileName = `${title}.mp4`; // Convert the video is in MP4 format.
+   const videoPath = path.join(videoDir, videoFileName);
+
+
+   let videoSrcRmHeader = videoSrc.split(';base64,').pop(); //remove the header of base64 representation of the video.
+   // Decode the base64 video data and save the video file to the directory
+   const videoBuffer = Buffer.from(videoSrcRmHeader, 'base64');
+   fs.writeFileSync(videoPath, videoBuffer);
+
+   // Save only the path to the video file in MongoDB
+   const video = new Video({
+       img: img,
+       videoSrc: videoPath, // Save the path, not the actual file
+       title: title,
+       displayName: displayName,
+       description: description,
+       userId: userId
+   });
+
+   return await video.save();
 };
 
 

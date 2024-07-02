@@ -15,7 +15,7 @@ const createUser = async (req, res) => {
 
 const getUserDetails = async (req, res) => {
     console.log(req.params.id);
-    const user = await userService.getUserById(req.params.id);
+    const user = await userService.getUserByUserName(req.params.id);
     console.log(user);
     // check if user exist
     if (!user) {
@@ -28,12 +28,11 @@ const getUserDetails = async (req, res) => {
 
 
 const updateUser = async (req, res) => {
-    const updatedUser = await userService.updateUserById(req.params.id, req.body);
-    console.log(updatedUser);
-    if (updatedUser) {
-        res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+    const result = await userService.updateUserById(req.params.id, req.body);
+    if (result.success) {
+        res.status(200).json({ message: result.message, updateUser: result.updatedUser });
     } else {
-        res.status(404).json({ message: 'User not found' });
+        res.status(404).json({ message: result.message });
     }
 
 }
@@ -43,9 +42,9 @@ const deleteUser = async (req, res) => {
     const deleteUser = await userService.deleteUserById(req.params.id);
     console.log(deleteUser);
     if (!deleteUser) { //if user not exist
-        return res.status(404).json({ errors: ['User not found'] });
+        return res.status(404).json({ message: 'User not found' });
     }
-    res.status(200).json({ message: ['User delete successfully'] });
+    res.status(200).json({ message: 'User delete successfully' });
 }
 
 

@@ -91,6 +91,7 @@ const createUser = async (userName, userPassword, userConfirmPassword, displayNa
 
 // craete here the logic of getDetails/update/delete
 
+
 const getUserById = async (userId) => {
     const user = await User.findOne({ userId: userId });
     if (user)
@@ -99,10 +100,36 @@ const getUserById = async (userId) => {
         return null;
 }
 
+const getUserByUserName = async (userName) => {
+    const user = await User.findOne({ userName: userName });
+    if (user)
+        return user;
+    else
+        return null;
+}
+
 const updateUserById = async (userId, updateData) => {
     const options = { new: true, runValidators: true }; // Return the updated document and run validators
+
+    //check if user dont fill any of fields
+    AnyFieldEmpty = checkIfAnyFieldEmpty('name', updateData.userPassword, updateData.userConfirmPassword, updateData.displayName, updateData.userImgFile)
+    if(AnyFieldEmpty){
+        return { success: false, message: 'Some field are empty, Please fill all the fields'};
+    }
+
+    //check if the password valid.
+    const validPassword = validatePassword(updateData.userPassword);
+    if (!validPassword)
+        return { success: false, message: 'Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number.' };
+
+    //check if the password and confirm password are same
+    const confirmPassword = checkIfConfirmPassSameToPass(updateData.userPassword, updateData.userConfirmPassword)
+    if (!confirmPassword)
+        return { success: false, message: 'Password and Confirm Password fields do not match.' };
+
     const updatedUser = await User.findOneAndUpdate({ userId: userId }, updateData, options);
-    return updatedUser; //retrun null if userId doesnt exist.
+    return { success: true, message: 'Update completed successfully', updatedUser: updatedUser}; // Return the new user object
+    
 }
 
 const deleteUserById = async (userId) => {
@@ -115,6 +142,6 @@ const deleteUserById = async (userId) => {
 
 
 
-module.exports = {getUserById, deleteUserById, updateUserById,createUser,checkIfUserNameExist, validatePassword, checkIfConfirmPassSameToPass, findUserIdMaxValue}
+module.exports = {getUserById, getUserByUserName, deleteUserById, updateUserById,createUser,checkIfUserNameExist, validatePassword, checkIfConfirmPassSameToPass, findUserIdMaxValue}
 
 

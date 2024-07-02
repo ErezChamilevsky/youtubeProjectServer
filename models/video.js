@@ -9,13 +9,17 @@ const Video = new Schema({
     },
     img: {
         type: String,
-        // required: true
+        required: true
     },
     videoSrc: {
         type: String,
         required: true
     },
     title: {
+        type: String,
+        required: true
+    },
+    description: {
         type: String,
         required: true
     },
@@ -30,10 +34,6 @@ const Video = new Schema({
     views: {
         type: Number,
         default: 0
-    },
-    description: {
-        type: String,
-        required: true
     },
     likes: {
         type: Number,

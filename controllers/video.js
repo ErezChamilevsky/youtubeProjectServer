@@ -6,19 +6,18 @@ const createVideo = async (req, res) => {
     try {
         const userId = req.params.id;
         if (isNaN(userId)) {
-            return res.status(400).json({ errors: ['Invalid user ID'] });
+            return res.status(404).json({ errors: ['Invalid user ID'] });
         }
         const user = await userServiece.getUserById(userId);
         if (!user || !user.displayName) {
-            return res.status(400).json({ errors: ['User not found or display name missing'] });
+            return res.status(404).json({ errors: ['User not found or display name missing'] });
         }
         const displayName = user.displayName;
-        const createdVideo = await videoService.createVideo(
-            req.body.img, req.body.videoSrc, req.body.title, displayName,
-            req.body.publicationDate, req.body.views, req.body.description, req.body.likes, userId
-        );
+        const createdVideo = await videoService.createVideo(req.body.img, req.body.videoSrc, req.body.title, displayName, req.body.description, userId);
+        console.log('video created successfully');
+        res.status(200).json(createdVideo); //if video created successfully
+       
 
-        res.json(createdVideo);
     } catch (error) {
         console.error('Error creating video:', error);
         return res.status(500).json({ errors: ['Failed to create video'] });

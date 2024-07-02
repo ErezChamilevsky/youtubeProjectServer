@@ -3,7 +3,8 @@ var server = express();
 
 
 const bodyParser = require('body-parser');
-server.use(bodyParser.urlencoded({ extended: true}));
+server.use(bodyParser.json({ limit: '50mb' })); // Increase the limit for JSON and URL-encoded bodies
+server.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 server.use(express.json());
 
 const cors = require('cors');
@@ -27,13 +28,20 @@ mongoose.connect(process.env.CONNECTION_STRING,
 
 server.use(express.static('public'));
 
-// //routes list
-// const register = require('./routes/register');
-// server.use('/api/users', register);
+
+//this routes is for users crud operations
+const users = require('./routes/user');
+server.use('/api/users/', users);
+
+//this routes is for videos crud operations
+const videos = require('./routes/video');
+server.use('/api/videos', videos);
 
 
-const users = require('./routes/user')
-server.use('/api/users/', users)
+//this routes is for login
+const tokens = require('./routes/tokens')
+server.use('/api/tokens/', tokens)
+
 
 
 server.listen(process.env.PORT); //server listen in PORT (define in config/.env.local or test).

@@ -8,7 +8,8 @@ var router = express.Router();
 
 router.route('/').get(videoController.getVideoListToPresent);  //returning list of 10 best videos and 10 random
 
-
+router.route('/:vid/')
+    .get(videoController.getVideoByVideoId) 
 
 module.exports = router;
 

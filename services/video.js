@@ -77,6 +77,15 @@ async function getVideoByIdAndUserId(videoId, userId) {
     }
 }
 
+async function getVideoByVideoId(videoId) {
+    try {
+        const video = await Video.findOne({ id: videoId});
+        return video;
+    } catch {
+        throw error;
+    }
+}
+
 async function deleteVideoObject(videoId, userId) {
     try {
         const deletedVideo = await Video.findOneAndDelete({ id: videoId, userId: userId });

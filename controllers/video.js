@@ -29,7 +29,7 @@ const createVideo = async (req, res) => {
 // Get video details by video ID
 const getVideoByVideoId = async (req, res) => {
     try {
-        const video = await videoService.getVideoByIdAndUserId(req.params.pid, req.params.id);
+        const video = await videoService.getVideoByVideoId(req.params.pid);
 
         if (!video) {
             return res.status(404).json({ errors: ['Video not found'] });
@@ -89,6 +89,8 @@ const getVideoOfUserByVideoId = async (req, res) => {
         return res.status(500).json({ errors: ['Failed to fetch user video'] });
     }
 };
+
+
 
 // Delete video by video ID and user ID
 const deleteVideoByVideoId = async (req, res) => {

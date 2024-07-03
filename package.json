@@ -12,7 +12,8 @@
     "custom-env": "^2.0.2",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.4.3"
+    "mongoose": "^8.4.3",
+    "multer": "^1.4.5-lts.1"
   },
   "scripts": {
     "start": "SET NODE_ENV=local && node server.js",

@@ -123,6 +123,38 @@ const deleteVideoByVideoId = async (req, res) => {
     }
 };
 
+// dislike video by video ID
+const dislikeHandle = async (req, res) => {
+    try {
+        const dislikedVideo = await videoService.dislikeHandle(req.params.pid);
+
+        if (!dislikedVideo) {
+            return res.status(404).json({ errors: ['Failed to dislike'] });
+        }
+
+        res.status(200).json({ message: 'Video disliked successfully' });
+    } catch (error) {
+        console.error('Error dislike video:', error);
+        return res.status(500).json({ errors: ['Failed to dislike video'] });
+    }
+};
+
+
+// like video by video ID
+const likeHandle = async (req, res) => {
+    try {
+        const likedVideo = await videoService.likeHandle(req.params.pid);
+
+        if (!likedVideo) {
+            return res.status(404).json({ errors: ['Failed to like'] });
+        }
+
+        res.status(200).json({ message: 'Video liked successfully' });
+    } catch (error) {
+        console.error('Error like video:', error);
+        return res.status(500).json({ errors: ['Failed to like video'] });
+    }
+};
 
 // PATCH request to update specific fields of a video by ID
 const updateVideoById = async (req, res) => {
@@ -164,5 +196,8 @@ module.exports = {
     deleteVideoByVideoId,
     updateVideoById,
     getRandomVideosList,
-    getUploaderByVideoId
+    getUploaderByVideoId,
+    dislikeHandle,
+    likeHandle
+
 };

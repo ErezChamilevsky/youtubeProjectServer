@@ -4,7 +4,7 @@ const path = require('path');
 
 const createVideo = async (img, videoSrc, title, displayName, description, userId) => {
    // Define the directory where you want to save the video files
-   const videoDir = path.join(__dirname,'..', 'videos');
+   const videoDir = path.join(__dirname,'..', 'uploadvideos');
 
    // Ensure the directory exists
    if (!fs.existsSync(videoDir)) {
@@ -68,34 +68,19 @@ async function getTenRandomVideos(excludeVideos) {
 }
 
 
-// Function to merge the two lists
+// Function to merge the two lists and sent the to the client that he can present them in HomePage
 async function getVideoListToPresent() {
     try {
         // Get the 10 most viewed videos
         const mostViewedVideos = await getTenMostViewedVideos();
-
+        console.log('mostViewedVideos:', mostViewedVideos);
         // Get 10 random videos from the remaining videos
         const randomVideos = await getTenRandomVideos(mostViewedVideos);
-
+        console.log('randomVideos:', randomVideos);
         // Merge the two lists
         return [...mostViewedVideos, ...randomVideos];
     } catch (error) {
         console.error('Error merging video lists:', error);
-        throw error;
-    }
-}
-
-async function getVideoListToPresent() {
-    try {
-        // Get the 10 most viewed videos
-        const mostViewedVideos = await getTenMostViewedVideos();
-
-        // Get 10 random videos from the remaining videos
-        const randomVideos = await getTenRandomVideos(mostViewedVideos);
-
-        // Merge the two lists
-        return [...mostViewedVideos, ...randomVideos];
-    } catch (error) {
         throw error;
     }
 }
@@ -117,14 +102,26 @@ async function getVideoByIdAndUserId(videoId, userId) {
     }
 }
 
+//changed in order to update the views +1 while requesting it from server
 async function getVideoByVideoId(videoId) {
     try {
-        const video = await Video.findOne({ id: videoId});
+        // Find the video and increment the view count atomically
+        const video = await Video.findOneAndUpdate(
+            { id: videoId },
+            { $inc: { views: 1 } },
+            { new: true }
+        );
+
+        if (!video) {
+            throw new Error('Video not found');
+        }
+
         return video;
     } catch (error) {
         throw error;
     }
 }
+
 
 async function deleteVideoObject(videoId, userId) {
     try {
@@ -159,6 +156,29 @@ const updateVideoById = async (videoId, userId, updateData) => {
     return await Video.findOneAndUpdate({ id: videoId }, updatedData, { new: true });
 };
 
+// dislike handle
+const dislikeHandle = async (videoId) => {
+    const video = await getVideoByVideoId(videoId);
+    if (!video) {
+        throw new Error('Video not found');
+    }
+
+    const updatedData = { $inc: { likes: -1 } }; // Decrement the likes field by 1
+
+    return await Video.findOneAndUpdate({ id: videoId }, updatedData, { new: true });
+};
+
+// like handle
+const likeHandle = async (videoId) => {
+    const video = await getVideoByVideoId(videoId);
+    if (!video) {
+        throw new Error('Video not found');
+    }
+
+    const updatedData = { $inc: { likes: 1 } }; // Increment the likes field by 1
+
+    return await Video.findOneAndUpdate({ id: videoId }, updatedData, { new: true });
+};
 
 module.exports = {
     createVideo,
@@ -169,5 +189,7 @@ module.exports = {
     deleteVideoObject,
     updateVideoById,
     getVideoByIdAndUserId,
-    getVideoByVideoId
+    getVideoByVideoId,
+    dislikeHandle,
+    likeHandle
 };

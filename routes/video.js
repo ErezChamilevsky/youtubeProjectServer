@@ -20,6 +20,12 @@ router.route('/users/:id')
     .get(userController.getUserDetailsById);
 
 
+router.route('/users/:id/uploads')
+    .get(videoController.getVideoListByUserId);
+
+
+
+
 
 
 router.route('/:pid/comments')

@@ -4,7 +4,7 @@ const path = require('path');
 
 const createVideo = async (img, videoSrc, title, displayName, description, userId) => {
    // Define the directory where you want to save the video files
-   const videoDir = path.join(__dirname,'..', 'videos');
+   const videoDir = path.join(__dirname,'..', 'uploadvideos');
 
    // Ensure the directory exists
    if (!fs.existsSync(videoDir)) {
@@ -68,34 +68,19 @@ async function getTenRandomVideos(excludeVideos) {
 }
 
 
-// Function to merge the two lists
+// Function to merge the two lists and sent the to the client that he can present them in HomePage
 async function getVideoListToPresent() {
     try {
         // Get the 10 most viewed videos
         const mostViewedVideos = await getTenMostViewedVideos();
-
+        console.log('mostViewedVideos:', mostViewedVideos);
         // Get 10 random videos from the remaining videos
         const randomVideos = await getTenRandomVideos(mostViewedVideos);
-
+        console.log('randomVideos:', randomVideos);
         // Merge the two lists
         return [...mostViewedVideos, ...randomVideos];
     } catch (error) {
         console.error('Error merging video lists:', error);
-        throw error;
-    }
-}
-
-async function getVideoListToPresent() {
-    try {
-        // Get the 10 most viewed videos
-        const mostViewedVideos = await getTenMostViewedVideos();
-
-        // Get 10 random videos from the remaining videos
-        const randomVideos = await getTenRandomVideos(mostViewedVideos);
-
-        // Merge the two lists
-        return [...mostViewedVideos, ...randomVideos];
-    } catch (error) {
         throw error;
     }
 }

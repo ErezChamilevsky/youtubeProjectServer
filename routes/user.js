@@ -35,11 +35,6 @@ router.route('/:id/videos/:pid/comments')
     .get(commentController.getCommentsByVideoId) // Get comments for a specific video
     .post(isLoggedIn, commentController.createComment); // Create a new comment for a specific video
 
-router.route('/:id/videos/:pid/comments/:cid')
-    .get(commentController.getCommentById) // Get a specific comment by comment ID
-    .delete(isLoggedIn, commentController.deleteCommentById) // Delete a specific comment by comment ID
-    .patch(isLoggedIn, commentController.editCommentById) // Partially update a specific comment by comment ID
-    .put(isLoggedIn, commentController.editCommentById); // Fully update a specific comment by comment ID
 
 
 

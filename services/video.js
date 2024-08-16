@@ -1,6 +1,7 @@
 const Video = require('../models/video');
 const fs = require('fs');
 const path = require('path');
+const net = require('net');
 
 const createVideo = async (img, videoSrc, title, displayName, description, userId) => {
    // Define the directory where you want to save the video files
@@ -116,10 +117,53 @@ async function getVideoByVideoId(videoId) {
             throw new Error('Video not found');
         }
 
+        //video.userId is not good, cause its user id of who upload the video and not user id who connected to website!!!!
+        sendVideoDataToTCPServer(video.id, video.views, video.userId); 
+
         return video;
+
     } catch (error) {
         throw error;
     }
+}
+
+/**
+ * 
+ * @param {*} videoId - the id of the video
+ * @param {*} videoViews - the views of the video
+ * @param {*} userId - the id of the user who watched the video
+ * 
+ * This function reports when user click and watch some video to the TCP server. 
+ */
+function sendVideoDataToTCPServer(videoId, videoViews, userId) {
+  const client = new net.Socket();
+  
+  //connect to TCP server in port 5555
+  client.connect(5555, '127.0.0.1', function() {
+    console.log('Connected to TCP server');
+    
+    // Construct message to send (e.g., JSON format)
+    const message = JSON.stringify({ videoId, videoViews, userId });
+
+    // Send the message
+    client.write(message);
+
+    // we need Close the connection only after the user logged out
+    //client.end();
+  });
+
+  //print the data the server send
+  client.on('data', function(data) {
+    console.log('Received: ' + data);
+  });
+
+  client.on('close', function() {
+    console.log('Connection closed');
+  });
+
+  client.on('error', function(err) {
+    console.error('TCP connection error:', err);
+  });
 }
 
 

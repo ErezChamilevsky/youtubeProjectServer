@@ -117,7 +117,7 @@ async function getVideoByVideoId(videoId) {
             throw new Error('Video not found');
         }
 
-        //video.userId is not good, cause its user id of who upload the video and not user id who connected to website!!!!
+        //report to the TCP server that the user watched the video
         sendVideoDataToTCPServer(video.id, video.views, video.userId); 
 
         return video;
@@ -148,8 +148,8 @@ function sendVideoDataToTCPServer(videoId, videoViews, userId) {
     // Send the message
     client.write(message);
 
-    // we need Close the connection only after the user logged out
-    //client.end();
+    // cloes the connection
+    client.end();
   });
 
   //print the data the server send

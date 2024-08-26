@@ -4,8 +4,10 @@ const createUser = async (req, res) => {
     result = await userService.createUser(req.body.userName, req.body.userPassword, req.body.userConfirmPassword, req.body.displayName, req.body.userImgFile)
 
     if (result.success) {
+        console.log("creation successfull")
         res.status(200).json({ message: result.message });
     } else {
+        console.log("creation failed")
         res.status(409).json({ message: result.message });
     }
 
@@ -15,7 +17,7 @@ const createUser = async (req, res) => {
 const getUserDetailsById = async (req, res) => {
     console.log(req.params.id);
     const user = await userService.getUserById(req.params.id);
-    console.log(user);
+    //console.log(user);
     // check if user exist
     if (!user) {
         return res.status(404).json({ errors: ['User not found'] });
@@ -26,11 +28,13 @@ const getUserDetailsById = async (req, res) => {
 const getUserDetails = async (req, res) => {
     console.log(req.params.id);
     const user = await userService.getUserByUserName(req.params.id);
-    console.log(user);
+    //console.log(user);
     // check if user exist
     if (!user) {
+        console.log("get user deatils failed")
         return res.status(404).json({ errors: ['User not found'] });
     }
+    console.log("get user deatils successfull")
     res.json(user);
 }
 

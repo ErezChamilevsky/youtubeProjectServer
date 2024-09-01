@@ -68,18 +68,36 @@ async function getTenRandomVideos(excludeVideos) {
     }
 }
 
+async function getVideosFromTCP(videoIds) {
+    try {
+        if (!videoIds || videoIds.length === 0) {
+            throw new Error('No videoIds provided.');
+        }
+
+        const videos = await Video.find({ _id: { $in: videoIds } }).exec();
+
+        return videos;
+    } catch (error) {
+        console.error('Error getting videos by ID list:', error);
+        throw error;
+    }
+}
+
+
 
 // Function to merge the two lists and sent the to the client that he can present them in HomePage
 async function getVideoListToPresent() {
     try {
+        const videoIds = await getListFromTCP();
+        const tcpList = await getVideosFromTCP(videoIds);
         // Get the 10 most viewed videos
         const mostViewedVideos = await getTenMostViewedVideos();
-        console.log('mostViewedVideos:', mostViewedVideos);
-        // Get 10 random videos from the remaining videos
-        const randomVideos = await getTenRandomVideos(mostViewedVideos);
-        console.log('randomVideos:', randomVideos);
+        // console.log('mostViewedVideos:', mostViewedVideos);
+        // // Get 10 random videos from the remaining videos
+        // const randomVideos = await getTenRandomVideos(mostViewedVideos);
+        // console.log('randomVideos:', randomVideos);
         // Merge the two lists
-        return [...mostViewedVideos, ...randomVideos];
+        return [...tcpList, ...mostViewedVideos];
     } catch (error) {
         console.error('Error merging video lists:', error);
         throw error;
@@ -118,7 +136,7 @@ async function getVideoByVideoId(videoId) {
         }
 
         //report to the TCP server that the user watched the video
-        sendVideoDataToTCPServer(video.id, video.views, video.userId); 
+        await sendVideoDataToTCPServer(video.id, video.views, video.userId); 
 
         return video;
 
@@ -136,34 +154,57 @@ async function getVideoByVideoId(videoId) {
  * This function reports when user click and watch some video to the TCP server. 
  */
 function sendVideoDataToTCPServer(videoId, videoViews, userId) {
-  const client = new net.Socket();
-  
-  //connect to TCP server in port 5555
-  client.connect(5555, '127.0.0.1', function() {
-    console.log('Connected to TCP server');
-    
-    // Construct message to send (e.g., JSON format)
-    const message = JSON.stringify({ videoId, videoViews, userId });
+    return new Promise((resolve, reject) => {
+        const client = new net.Socket();
 
-    // Send the message
-    client.write(message);
+        client.connect(5555, '127.0.0.1', () => {
+            console.log('Connected to TCP server');
+            const message = JSON.stringify({ videoId, videoViews, userId });
+            client.write(message);
+        });
 
-    // cloes the connection
-    client.end();
-  });
+        client.on('data', (data) => {
+            console.log('Received: ' + data);
+            client.end(); // Close connection after receiving data
+            resolve(data);
+        });
 
-  //print the data the server send
-  client.on('data', function(data) {
-    console.log('Received: ' + data);
-  });
+        client.on('error', (err) => {
+            console.error('TCP connection error:', err);
+            reject(err);
+        });
 
-  client.on('close', function() {
-    console.log('Connection closed');
-  });
+        client.on('close', () => {
+            console.log('Connection closed');
+        });
+    });
+}
 
-  client.on('error', function(err) {
-    console.error('TCP connection error:', err);
-  });
+
+function getListFromTCP() {
+    return new Promise((resolve, reject) => {
+        const client = new net.Socket();
+
+        client.connect(5555, '127.0.0.1', () => {
+            console.log('Connected to TCP server');
+            client.write('Request for video list'); // Send a specific message if needed
+        });
+
+        client.on('data', (data) => {
+            console.log('Received: ' + data);
+            resolve(JSON.parse(data)); // Assuming data is JSON
+            client.end();
+        });
+
+        client.on('error', (err) => {
+            console.error('TCP connection error:', err);
+            reject(err);
+        });
+
+        client.on('close', () => {
+            console.log('Connection closed');
+        });
+    });
 }
 
 

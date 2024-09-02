@@ -67,19 +67,29 @@ async function getTenRandomVideos(excludeVideos) {
         throw error;
     }
 }
+async function getVideosFromTCP(videoIds) {
+    
+}
+
 
 
 // Function to merge the two lists and sent the to the client that he can present them in HomePage
 async function getVideoListToPresent() {
     try {
-        // Get the 10 most viewed videos
         const mostViewedVideos = await getTenMostViewedVideos();
-        console.log('mostViewedVideos:', mostViewedVideos);
-        // Get 10 random videos from the remaining videos
-        const randomVideos = await getTenRandomVideos(mostViewedVideos);
-        console.log('randomVideos:', randomVideos);
+
+        const videoIds = await getListFromTCP();
+        if (!Array.isArray(videoIds) || !videoIds.every(Number.isInteger)){
+            return mostViewedVideos;
+        }
+        const tcpList = await getVideosFromTCP(videoIds);
+        // Get the 10 most viewed videos
+        // console.log('mostViewedVideos:', mostViewedVideos);
+        // // Get 10 random videos from the remaining videos
+        // const randomVideos = await getTenRandomVideos(mostViewedVideos);
+        // console.log('randomVideos:', randomVideos);
         // Merge the two lists
-        return [...mostViewedVideos, ...randomVideos];
+        return [...tcpList, ...mostViewedVideos];
     } catch (error) {
         console.error('Error merging video lists:', error);
         throw error;
@@ -104,7 +114,7 @@ async function getVideoByIdAndUserId(videoId, userId) {
 }
 
 //changed in order to update the views +1 while requesting it from server
-async function getVideoByVideoId(videoId) {
+async function getVideoByVideoId(videoId, loggedUser) {
     try {
         // Find the video and increment the view count atomically
         const video = await Video.findOneAndUpdate(
@@ -118,7 +128,7 @@ async function getVideoByVideoId(videoId) {
         }
 
         //report to the TCP server that the user watched the video
-        sendVideoDataToTCPServer(video.id, video.views, video.userId); 
+        sendVideoDataToTCPServer(video.id, video.views, loggedUser); 
 
         return video;
 
@@ -136,35 +146,70 @@ async function getVideoByVideoId(videoId) {
  * This function reports when user click and watch some video to the TCP server. 
  */
 function sendVideoDataToTCPServer(videoId, videoViews, userId) {
-  const client = new net.Socket();
-  
-  //connect to TCP server in port 5555
-  client.connect(5555, '127.0.0.1', function() {
-    console.log('Connected to TCP server');
-    
-    // Construct message to send (e.g., JSON format)
-    const message = JSON.stringify({ videoId, videoViews, userId });
+    return new Promise((resolve, reject) => {
+        const client = new net.Socket();
 
-    // Send the message
-    client.write(message);
+        client.connect(5555, '127.0.0.1', () => {
+            console.log('Connected to TCP server from send ' + userId);
+            const message = JSON.stringify({ requestType: "videoWasWatched", videoId, videoViews, userId });
+            console.log('Sending message:', message);
+            client.write(message);
+            client.destroy();
 
-    // cloes the connection
-    client.end();
-  });
+            resolve();
+        });
 
-  //print the data the server send
-  client.on('data', function(data) {
-    console.log('Received: ' + data);
-  });
+        client.on('error', (err) => {
+            console.error('TCP connection error:', err);
+            reject(err);
+        });
 
-  client.on('close', function() {
-    console.log('Connection closed');
-  });
-
-  client.on('error', function(err) {
-    console.error('TCP connection error:', err);
-  });
+        client.on('close', () => {
+            console.log('Connection closed');
+        });
+    });
 }
+
+function getListFromTCP() {
+    return new Promise((resolve, reject) => {
+        const client = new net.Socket();
+
+        client.connect(5555, '127.0.0.1', () => {
+            console.log('Connected to TCP server from get ');
+            const message = JSON.stringify({ requestType: "giveMeList"});
+            console.log('Sending message:', message);
+            client.write(message);
+        });
+        
+        client.on('data', (data) => {
+            try {
+                console.log("Received: " + data);
+                const response = data.toString();
+                const arr = JSON.parse(response);
+                console.log(arr);
+                client.destroy();
+
+                // Resolve the Promise with the responseData
+                resolve(arr);
+
+            } catch (error) {
+                client.destroy();
+                resolve("");
+            }
+        } );
+
+        client.on('error', (err) => {
+            console.error('TCP connection error:', err);
+            reject(err);
+        });
+
+        client.on('close', () => {
+            console.log('Connection closed');
+        });
+    });
+}
+
+
 
 
 async function deleteVideoObject(videoId, userId) {

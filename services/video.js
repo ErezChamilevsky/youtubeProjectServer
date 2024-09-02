@@ -67,20 +67,8 @@ async function getTenRandomVideos(excludeVideos) {
         throw error;
     }
 }
-
 async function getVideosFromTCP(videoIds) {
-    try {
-        if (!videoIds || videoIds.length === 0) {
-            throw new Error('No videoIds provided.');
-        }
-
-        const videos = await Video.find({ _id: { $in: videoIds } }).exec();
-
-        return videos;
-    } catch (error) {
-        console.error('Error getting videos by ID list:', error);
-        throw error;
-    }
+    
 }
 
 
@@ -88,10 +76,14 @@ async function getVideosFromTCP(videoIds) {
 // Function to merge the two lists and sent the to the client that he can present them in HomePage
 async function getVideoListToPresent() {
     try {
+        const mostViewedVideos = await getTenMostViewedVideos();
+
         const videoIds = await getListFromTCP();
+        if (!Array.isArray(videoIds) || !videoIds.every(Number.isInteger)){
+            return mostViewedVideos;
+        }
         const tcpList = await getVideosFromTCP(videoIds);
         // Get the 10 most viewed videos
-        const mostViewedVideos = await getTenMostViewedVideos();
         // console.log('mostViewedVideos:', mostViewedVideos);
         // // Get 10 random videos from the remaining videos
         // const randomVideos = await getTenRandomVideos(mostViewedVideos);
@@ -122,7 +114,7 @@ async function getVideoByIdAndUserId(videoId, userId) {
 }
 
 //changed in order to update the views +1 while requesting it from server
-async function getVideoByVideoId(videoId) {
+async function getVideoByVideoId(videoId, loggedUser) {
     try {
         // Find the video and increment the view count atomically
         const video = await Video.findOneAndUpdate(
@@ -136,7 +128,7 @@ async function getVideoByVideoId(videoId) {
         }
 
         //report to the TCP server that the user watched the video
-        await sendVideoDataToTCPServer(video.id, video.views, video.userId); 
+        sendVideoDataToTCPServer(video.id, video.views, loggedUser); 
 
         return video;
 
@@ -158,15 +150,13 @@ function sendVideoDataToTCPServer(videoId, videoViews, userId) {
         const client = new net.Socket();
 
         client.connect(5555, '127.0.0.1', () => {
-            console.log('Connected to TCP server');
-            const message = JSON.stringify({ videoId, videoViews, userId });
+            console.log('Connected to TCP server from send ' + userId);
+            const message = JSON.stringify({ requestType: "videoWasWatched", videoId, videoViews, userId });
+            console.log('Sending message:', message);
             client.write(message);
-        });
+            client.destroy();
 
-        client.on('data', (data) => {
-            console.log('Received: ' + data);
-            client.end(); // Close connection after receiving data
-            resolve(data);
+            resolve();
         });
 
         client.on('error', (err) => {
@@ -179,22 +169,34 @@ function sendVideoDataToTCPServer(videoId, videoViews, userId) {
         });
     });
 }
-
 
 function getListFromTCP() {
     return new Promise((resolve, reject) => {
         const client = new net.Socket();
 
         client.connect(5555, '127.0.0.1', () => {
-            console.log('Connected to TCP server');
-            client.write('Request for video list'); // Send a specific message if needed
+            console.log('Connected to TCP server from get ');
+            const message = JSON.stringify({ requestType: "giveMeList"});
+            console.log('Sending message:', message);
+            client.write(message);
         });
-
+        
         client.on('data', (data) => {
-            console.log('Received: ' + data);
-            resolve(JSON.parse(data)); // Assuming data is JSON
-            client.end();
-        });
+            try {
+                console.log("Received: " + data);
+                const response = data.toString();
+                const arr = JSON.parse(response);
+                console.log(arr);
+                client.destroy();
+
+                // Resolve the Promise with the responseData
+                resolve(arr);
+
+            } catch (error) {
+                client.destroy();
+                resolve("");
+            }
+        } );
 
         client.on('error', (err) => {
             console.error('TCP connection error:', err);
@@ -206,6 +208,8 @@ function getListFromTCP() {
         });
     });
 }
+
+
 
 
 async function deleteVideoObject(videoId, userId) {

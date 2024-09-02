@@ -28,7 +28,8 @@ const createVideo = async (req, res) => {
 // Get video details by video ID
 const getVideoByVideoId = async (req, res) => {
     try {
-        const video = await videoService.getVideoByVideoId(req.params.pid);
+        console.log(req.query.loggedUser);
+        const video = await videoService.getVideoByVideoId(req.params.pid, parseInt(req.query.loggedUser));
 
         if (!video) {
             return res.status(404).json({ errors: ['Video not found'] });

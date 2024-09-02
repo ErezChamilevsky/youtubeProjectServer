@@ -17,6 +17,11 @@ router.route('/randomVideos/').get(videoController.getRandomVideosList); //get r
 router.route('/:pid/')
     .get(videoController.getVideoByVideoId);
 
+//get video details
+router.route('/:pid/')
+    .put(videoController.getVideoByVideoId);
+
+
 //get uploader details
 router.route('/users/:id')
     .get(userController.getUserDetailsById);
